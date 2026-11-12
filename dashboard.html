@@ -1,0 +1,333 @@
+<meta name="dash-one-writer">
+<style>
+.gb { font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.gb h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.gb h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.gb h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.gb p { margin: 0; }
+.gb .lead { color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-sm); max-width: 62rem; }
+.gb .note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); }
+.gb .chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin-bottom: var(--cds-gap-md); }
+.gb .chip { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px var(--cds-pad-sm); }
+.gb .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--cds-gap-md); }
+.gb .tile, .gb .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.gb .lbl { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.gb .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
+.gb .tabs { display: flex; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); margin: var(--cds-gap-lg) 0 var(--cds-gap-md); overflow-x: auto; }
+.gb .tab { font: inherit; font-size: var(--cds-font-size-body); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); cursor: pointer; white-space: nowrap; }
+.gb .tab[aria-selected=true] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.gb .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.gb .sim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); align-items: stretch; }
+.gb .chart { position: relative; min-height: 240px; }
+.gb table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.gb th, .gb td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+.gb th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+.gb td.num, .gb th.num { text-align: right; }
+.gb .bar { display: inline-block; height: .55rem; border-radius: 2px; vertical-align: middle; margin-right: .4rem; }
+.gb .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.gb .tip .t { color: var(--cds-text-secondary); }
+.gb .field { display: flex; flex-direction: column; gap: var(--cds-gap-xs); margin-bottom: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.gb .seg { display: flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.gb .seg button { flex: 1; font: inherit; font-size: var(--cds-font-size-caption); background: var(--color-bg); color: var(--color-fg); border: 0; border-right: 1px solid var(--color-border-line); padding: var(--cds-pad-sm); cursor: pointer; }
+.gb .seg button:last-child { border-right: 0; }
+.gb .seg button[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); }
+.gb .slider-row { display: flex; align-items: center; gap: var(--cds-gap-sm); }
+.gb .slider-row input[type=range] { flex: 1; accent-color: var(--color-fg); }
+.gb .slider-row output { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); min-width: 3.5rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--color-fg); }
+.gb .status { border-radius: var(--cds-radius); padding: var(--cds-pad-lg); border: 1px solid var(--color-border-line); }
+.gb .status.go { border-color: var(--color-bad); }
+.gb .status.no { border-color: var(--color-ok); }
+.gb .verdict { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); margin: var(--cds-gap-xs) 0 var(--cds-gap-sm); }
+.gb .verdict .alert { color: var(--color-bad); }
+.gb .verdict .ok { color: var(--color-ok); }
+.gb .verdict .na { color: var(--color-fg-muted); font-size: var(--cds-font-size-heading); }
+.gb .gauge { position: relative; min-height: 64px; }
+.gb .mini { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: var(--cds-gap-sm); margin-top: var(--cds-gap-md); }
+.gb .mini .v { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); font-variant-numeric: tabular-nums; }
+.gb .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--cds-gap-sm); margin-top: var(--cds-gap-md); }
+.gb .step { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-left: 2px solid var(--color-border-line); padding-left: var(--cds-pad-sm); }
+.gb .step b { color: var(--color-fg); display: block; }
+.gb .fail { display: flex; align-items: center; justify-content: center; gap: .4rem; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); min-height: inherit; }
+.gb .fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.gb .legend { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: flex; gap: var(--cds-gap-md); flex-wrap: wrap; margin-bottom: var(--cds-gap-xs); }
+.gb .sw { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; margin-right: .3rem; vertical-align: middle; }
+.gb details { margin-top: var(--cds-gap-xl); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.gb details p { margin: var(--cds-gap-xs) 0; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="gb">
+  <h1>日月潭線 6670 機動加班決策儀表板</h1>
+  <p class="lead">先排定哪些時段要準備待命車,再看日月潭、臺中、高鐵臺中站的候車人數決定何時發車。站立擁擠有 <b data-draw="top10share" data-source="top10share" data-field="share">—</b> 集中在 10 個發車時段。</p>
+  <div class="chips">
+    <span class="chip">資料:2024–2025 年電子票證(刷卡人數為下界)</span>
+    <span class="chip">原型:以歷史資料回測,尚非即時</span>
+    <span class="chip">容量 49 人,觸發門檻 85%</span>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="lbl">確定高載班(兩年)</div><div class="big" data-draw="k-hi" data-source="kpis" data-field="hi">—</div></div>
+    <div class="tile"><div class="lbl">占全部班次</div><div class="big" data-draw="k-rate" data-source="kpis" data-field="rate">—</div></div>
+    <div class="tile"><div class="lbl">日運量預測誤差(14 天前)</div><div class="big" data-draw="k-mape" data-source="kpis" data-field="mape_glm">—</div></div>
+    <div class="tile"><div class="lbl">三點感測提示命中率</div><div class="big" data-draw="k-prec" data-source="model3" data-field="精確率" data-where="方案=臺中%2B高鐵臺中站">—</div></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="t-sim" aria-selected="true">調度模擬</button>
+    <button class="tab" role="tab" data-tab="t-l1" aria-selected="false">何時待命</button>
+    <button class="tab" role="tab" data-tab="t-l2" aria-selected="false">在哪裡數人</button>
+    <button class="tab" role="tab" data-tab="t-fc" aria-selected="false">預測驗證</button>
+  </div>
+
+  <section id="t-sim" class="gb-sec">
+    <div class="sim-grid">
+      <div class="card">
+        <h2>這班車要不要加派?</h2>
+        <p class="note">選擇班次,再調整感測點目前的候車人數。</p>
+        <div class="field">出發地
+          <div class="seg" data-group="origin">
+            <button data-val="臺中(含高鐵臺中站)" aria-pressed="true">臺中+高鐵臺中站</button>
+            <button data-val="日月潭" aria-pressed="false">日月潭</button>
+          </div>
+        </div>
+        <div class="field">日別
+          <div class="seg" data-group="wk">
+            <button data-val="1" aria-pressed="true">假日(五至日)</button>
+            <button data-val="0" aria-pressed="false">平日(一至四)</button>
+          </div>
+        </div>
+        <label class="field">支線
+          <select class="dash-select gb-in" id="in-grp" aria-label="支線">
+            <option value="A/B/F">A/B/F 直達</option>
+            <option value="6670D">6670D 經埔里</option>
+            <option value="6670H">6670H</option>
+          </select></label>
+        <label class="field">發車時間
+          <select class="dash-select gb-in" id="in-hr" aria-label="發車時間">
+            <option value="7">07:00–07:59 發車</option><option value="8">08:00–08:59 發車</option><option value="9">09:00–09:59 發車</option><option value="10">10:00–10:59 發車</option><option value="11">11:00–11:59 發車</option><option value="12">12:00–12:59 發車</option><option value="13">13:00–13:59 發車</option><option value="14">14:00–14:59 發車</option><option value="15" selected>15:00–15:59 發車</option><option value="16">16:00–16:59 發車</option><option value="17">17:00–17:59 發車</option><option value="18">18:00–18:59 發車</option><option value="19">19:00–19:59 發車</option>
+          </select></label>
+        <div class="field">感測到的候車人數
+          <div class="slider-row"><input class="gb-in" id="in-n" type="range" min="0" max="60" value="30" aria-label="候車人數"><output id="out-n">30 人</output></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="status" data-draw="sim-box" data-source="trigger">
+          <div class="lbl">系統判斷</div>
+          <p class="verdict">
+            <span class="alert gb-v" data-v="go" hidden>提示:派機動加班車</span>
+            <span class="ok gb-v" data-v="no" hidden>不需加派</span>
+            <span class="na gb-v" data-v="na" hidden>此班次組合歷史資料不足(少於 20 班)</span>
+          </p>
+          <div class="legend"><span><span class="sw" data-draw="sw-a"></span>感測點候車</span><span><span class="sw" data-draw="sw-b"></span>後續站歷史上車</span><span>虛線:觸發門檻 · 右端:容量 49 人</span></div>
+          <div class="gauge" data-draw="gauge" data-source="trigger"></div>
+        </div>
+        <div class="mini">
+          <div><div class="lbl">預估本班載客</div><div class="v" data-draw="sim-load" data-source="trigger">—</div></div>
+          <div><div class="lbl">後續站歷史上車</div><div class="v" data-draw="sim-down" data-source="trigger">—</div></div>
+          <div><div class="lbl">此時段歷史爆滿率</div><div class="v" data-draw="sim-rate" data-source="trigger">—</div></div>
+          <div><div class="lbl">歷史樣本</div><div class="v" data-draw="sim-n" data-source="trigger">—</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><b>1 感測點數人</b>日月潭、臺中、高鐵臺中站的攝影機只輸出人數,不存影像。</div>
+      <div class="step"><b>2 加上後續站</b>依同支線、同日別、同發車時間,補上後面幾站通常會上車的人數。</div>
+      <div class="step"><b>3 提示調度員</b>預估載客達門檻就提示派車,是否發車仍由調度員決定。</div>
+    </div>
+  </section>
+
+  <section id="t-l1" class="gb-sec" hidden>
+    <div class="grid">
+      <div class="card">
+        <h3>確定高載班出現在哪些發車時間</h3>
+        <p class="note">星期 × 發車時間,兩年合計的確定高載班數;顏色越深越常爆滿。滑過格子看細節。</p>
+        <div class="chart" data-draw="heat" data-source="heatmap"></div>
+      </div>
+      <div class="card">
+        <h3>建議待命時段(前 10 名)</h3>
+        <p class="note">依每年超過 41 席的站立人時排序。</p>
+        <table data-source="top10" data-row-key="時段">
+          <thead><tr><th data-field="時段">發車時段</th><th class="num" data-field="高載班">確定高載班</th><th data-field="站立人時">站立人時/年</th></tr></thead>
+          <tbody data-draw="top10"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-l2" class="gb-sec" hidden>
+    <div class="grid">
+      <div class="card">
+        <h3>爆滿班的乘客在哪裡上車</h3>
+        <p class="note">臺中出發的爆滿班,一半乘客在高鐵臺中站才上車,所以只在臺中數人不夠。</p>
+        <div class="chart" data-draw="comp" data-source="boardcomp"></div>
+      </div>
+      <div class="card">
+        <h3>三種感測方案回測(門檻 42 人)</h3>
+        <p class="note">以刷卡上車人數代替候車人數;2024 年估計、2025 年檢驗。非實測。</p>
+        <table data-source="model3" data-row-key="方案">
+          <thead><tr><th data-field="方案">方案</th><th class="num" data-field="每日提示">每日提示</th><th class="num" data-field="精確率">命中率</th><th class="num" data-field="召回率">抓到的爆滿班</th></tr></thead>
+          <tbody data-draw="m3"></tbody>
+        </table>
+        <h3 style="margin-top: var(--cds-gap-lg)">攝影機數錯會怎樣</h3>
+        <p class="note">在人數上加入隨機誤差;命中率下降有限,重點是裝對地方。</p>
+        <table data-source="noise" data-row-key="計數誤差">
+          <thead><tr><th data-field="計數誤差">計數誤差</th><th class="num" data-field="精確率">命中率</th><th class="num" data-field="召回率">抓到的爆滿班</th></tr></thead>
+          <tbody data-draw="noise"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-fc" class="gb-sec" hidden>
+    <div class="card">
+      <h3>每日運量:14 天前的預測 vs 實際</h3>
+      <p class="note">2025 年 Q2–Q4 滾動驗證,每日總上車人次。滑過圖看每一天。</p>
+      <div class="legend"><span><span class="sw" data-draw="sw0"></span>實際</span><span><span class="sw" data-draw="sw1"></span>GLM 預測</span><span><span class="sw" data-draw="sw2"></span>基準線</span></div>
+      <div class="chart" data-draw="fc" data-source="daily"></div>
+      <table data-source="mape" data-row-key="fold" style="margin-top: var(--cds-gap-sm)">
+        <thead><tr><th data-field="fold">測試期</th><th class="num" data-field="基準線">基準線誤差</th><th class="num" data-field="GLM">GLM 誤差</th><th class="num" data-field="隨機森林">隨機森林誤差</th></tr></thead>
+        <tbody data-draw="mape"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details>
+    <summary>名詞、限制與即時資料</summary>
+    <p>確定高載:一班車刷卡在車人數的尖峰達 42 人(49 人容量的 85%)。現金乘客不在資料中,真實擁擠只會更多。</p>
+    <p>發車時間:該班第一位乘客刷卡上車的時刻,例如「15:00–15:59 發車」。班次由刷卡時間推算,不是正式班表。</p>
+    <p>命中率:提示中真的爆滿的比例。抓到的爆滿班:爆滿班中有被提示的比例。預測誤差為 MAPE,即誤差占實際值的平均百分比。</p>
+    <p>即時資料:本原型使用歷史資料,沒有接公車即時動態。正式導入時,感測點人數每分鐘更新,公車位置可介接交通部運輸資料流通服務(TDX)的公車動態。</p>
+  </details>
+</div>
+
+<script>
+const HI = 42, CAP = 49;
+const pct = d3.format('.1%'), pct0 = d3.format('.0%'), num = d3.format(',');
+const hm = (h) => `${String(h).padStart(2, '0')}:00`;
+const ok = (id) => dash.data(id).status === 'ok';
+const fail = (el, id) => { const s = dash.data(id).status; if (s === 'error' || s === 'connect') { el.replaceChildren(); const d = document.createElement('div'); d.className = 'fail'; d.textContent = 'Failed to load'; el.append(d); return true; } return false; };
+const dn = ['週一','週二','週三','週四','週五','週六','週日'];
+const state = { origin: '臺中(含高鐵臺中站)', wk: '1' };
+
+dash.calc('top10', { inputs: ['heatmap'], title: '站立時間前 10 名時段', description: '依每年站立人時排序取前 10 個星期 × 發車時間', fn: (heatmap) => heatmap.map(r => ({ 時段: `${r['星期']} ${String(r.hr).padStart(2, '0')}:00 發車`, 高載班: +r.hi, 站立人時: +r.stand_h_yr })).sort((a, b) => b.站立人時 - a.站立人時).slice(0, 10) });
+dash.calc('top10share', { inputs: ['heatmap'], title: '前 10 時段占站立時間', description: '站立人時前 10 名時段合計 ÷ 全部時段合計', fn: (heatmap) => { const v = heatmap.map(r => +r.stand_h_yr).sort((a, b) => b - a); return [{ share: d3.sum(v.slice(0, 10)) / d3.sum(v) }]; } });
+dash.calc('mape', { inputs: ['daily'], title: '各測試期 MAPE', description: '|預測 − 實際| ÷ 實際 的平均,依測試期與合計', fn: (daily) => { const m = (rs, c) => d3.mean(rs, r => Math.abs(+r[c] - +r.n) / +r.n); const g = d3.groups(daily, r => r.fold).map(([f, rs]) => ({ fold: f, 基準線: m(rs, 'pred_naive'), GLM: m(rs, 'pred_glmA'), 隨機森林: m(rs, 'pred_rfA') })); g.push({ fold: '三折合計', 基準線: m(daily, 'pred_naive'), GLM: m(daily, 'pred_glmA'), 隨機森林: m(daily, 'pred_rfA') }); return g; } });
+dash.calc('kpis', { inputs: ['heatmap', 'mape'], title: '總覽數字', description: '高載班總數、占比與 GLM 三折 MAPE', fn: (heatmap, mape) => { const hi = d3.sum(heatmap, r => +r.hi), tr = d3.sum(heatmap, r => +r.trips); const all = mape.find(r => r.fold === '三折合計'); return [{ hi, rate: hi / tr, mape_glm: all ? all.GLM : null }]; } });
+
+const word = (name, id, f) => dash.draw(name, (el) => { const d = dash.data(id); if (d.status !== 'ok' || !d.data.length) { el.textContent = '—'; return; } el.textContent = f(d.data); });
+word('top10share', 'top10share', (r) => pct0(r[0].share));
+word('k-hi', 'kpis', (r) => `${num(r[0].hi)} 班`);
+word('k-rate', 'kpis', (r) => pct(r[0].rate));
+word('k-mape', 'kpis', (r) => pct(r[0].mape_glm));
+word('k-prec', 'model3', (r) => { const x = r.find(a => a['方案'] === '臺中+高鐵臺中站'); return x ? pct0(+x['精確率']) : '—'; });
+const swc = { sw0: () => dash.colors[0], sw1: () => dash.colors[1], sw2: () => 'var(--cds-chart-muted)', 'sw-a': () => dash.colors[0], 'sw-b': () => dash.colors[2] || dash.colors[1] };
+Object.keys(swc).forEach(n => dash.draw(n, (el) => { el.style.background = swc[n](); }));
+
+const rowsTable = (name, id, cols) => dash.draw(name, (tb) => { tb.replaceChildren(); const d = dash.data(id); if (d.status !== 'ok') return; d.data.forEach(r => { const tr = document.createElement('tr'); cols.forEach(([c, f, cls]) => { const td = document.createElement('td'); if (cls) td.className = cls; td.textContent = f ? f(r[c]) : r[c]; tr.append(td); }); tb.append(tr); }); });
+dash.draw('top10', (tb) => { tb.replaceChildren(); const d = dash.data('top10'); if (d.status !== 'ok') return; const mx = d3.max(d.data, r => r.站立人時) || 1; d.data.forEach(r => { const tr = document.createElement('tr'); const a = document.createElement('td'); a.textContent = r.時段; const b = document.createElement('td'); b.className = 'num'; b.textContent = num(r.高載班); const c = document.createElement('td'); const bar = document.createElement('span'); bar.className = 'bar'; bar.style.width = `${(r.站立人時 / mx) * 5}rem`; bar.style.background = dash.colors[0]; c.append(bar, document.createTextNode(d3.format(',.0f')(r.站立人時))); tr.append(a, b, c); tb.append(tr); }); });
+rowsTable('mape', 'mape', [['fold'], ['基準線', pct, 'num'], ['GLM', pct, 'num'], ['隨機森林', pct, 'num']]);
+rowsTable('m3', 'model3', [['方案'], ['每日提示', (v) => `${d3.format('.1f')(+v)} 次`, 'num'], ['精確率', (v) => pct0(+v), 'num'], ['召回率', (v) => pct0(+v), 'num']]);
+rowsTable('noise', 'noise', [['計數誤差'], ['精確率', (v) => pct0(+v), 'num'], ['召回率', (v) => pct0(+v), 'num']]);
+
+const tipOf = (box) => { const t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.append(t); return t; };
+const showTip = (box, tip, ev, lines) => { tip.replaceChildren(); lines.forEach((s, i) => { const d = document.createElement('div'); if (i === 0) d.className = 't'; d.textContent = s; tip.append(d); }); tip.hidden = false; const [x, y] = d3.pointer(ev, box); const w = tip.offsetWidth; tip.style.left = Math.max(0, Math.min(x + 12, box.clientWidth - w)) + 'px'; tip.style.top = (y + 12) + 'px'; };
+const cleanAxis = (g) => { g.attr('font-size', null).attr('font-family', null); g.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)'); g.selectAll('line,path').attr('stroke', 'var(--cds-chart-axis)'); };
+
+dash.draw('heat', (box) => {
+  box.replaceChildren(); if (fail(box, 'heatmap')) return; if (!ok('heatmap')) return;
+  const rows = dash.data('heatmap').data.map(r => ({ dow: +r.dow, hr: +r.hr, hi: +r.hi, trips: +r.trips }));
+  const hrs = d3.range(d3.min(rows, r => r.hr), d3.max(rows, r => r.hr) + 1);
+  const W = box.clientWidth, m = { t: 6, r: 6, b: 26, l: 40 }, H = 250;
+  const x = d3.scaleBand(hrs, [m.l, W - m.r]).padding(0.08), y = d3.scaleBand(d3.range(7), [m.t, H - m.b]).padding(0.08);
+  const c0 = getComputedStyle(box).getPropertyValue('--color-panel').trim() || '#fff';
+  const col = d3.scaleSequential([0, d3.max(rows, r => r.hi)], d3.interpolateRgb(c0, dash.colors[3] || dash.colors[0]));
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const tip = tipOf(box);
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', r => x(r.hr)).attr('y', r => y(r.dow)).attr('width', x.bandwidth()).attr('height', y.bandwidth()).attr('rx', 2).attr('fill', r => col(r.hi)).attr('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 0.5)
+    .on('mousemove', (ev, r) => showTip(box, tip, ev, [`${dn[r.dow]} ${hm(r.hr)}–${String(r.hr).padStart(2, '0')}:59 發車`, `確定高載 ${num(r.hi)} 班 / 共 ${num(r.trips)} 班`, `爆滿率 ${pct(r.hi / r.trips)}`])).on('mouseleave', () => { tip.hidden = true; });
+  const every = W < 520 ? 3 : 2;
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(hrs.filter(h => h % every === 0)).tickFormat(hm).tickSize(0)).call(cleanAxis).select('.domain').remove();
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickFormat(i => dn[i]).tickSize(0)).call(cleanAxis).select('.domain').remove();
+});
+
+dash.draw('fc', (box) => {
+  box.replaceChildren(); if (fail(box, 'daily')) return; if (!ok('daily')) return;
+  const rows = dash.data('daily').data.map(r => ({ d: new Date(r.date), n: +r.n, g: +r.pred_glmA, b: +r.pred_naive, f: r.fold }));
+  const W = box.clientWidth, H = 250, m = { t: 8, r: 8, b: 24, l: 48 };
+  const x = d3.scaleUtc(d3.extent(rows, r => r.d), [m.l, W - m.r]);
+  const y = d3.scaleLinear([0, d3.max(rows, r => Math.max(r.n, r.g, r.b))], [H - m.b, m.t]).nice();
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+  const series = [['b', 'var(--cds-chart-muted)', 1.5], ['g', dash.colors[1], 2], ['n', dash.colors[0], 2]];
+  const segs = d3.groups(rows, r => r.f);
+  series.forEach(([k, c, w]) => segs.forEach(([, rs]) => svg.append('path').datum(rs).attr('fill', 'none').attr('stroke', c).attr('stroke-width', w).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x(r => x(r.d)).y(r => y(r[k])))));
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 500 ? 3 : 6).tickFormat(d3.utcFormat('%Y/%-m'))).call(cleanAxis);
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format(','))).call(cleanAxis).select('.domain').remove();
+  const tip = tipOf(box), dot = svg.append('circle').attr('r', 3.5).attr('fill', dash.colors[0]).attr('opacity', 0);
+  const bis = d3.bisector(r => r.d).center;
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+    .on('mousemove', (ev) => { const r = rows[bis(rows, x.invert(d3.pointer(ev)[0]))]; dot.attr('cx', x(r.d)).attr('cy', y(r.n)).attr('opacity', 1); showTip(box, tip, ev, [d3.utcFormat('%Y/%-m/%-d')(r.d), `實際 ${num(r.n)} 人次`, `GLM ${num(Math.round(r.g))}`, `基準線 ${num(Math.round(r.b))}`]); })
+    .on('mouseleave', () => { tip.hidden = true; dot.attr('opacity', 0); });
+});
+
+dash.draw('comp', (box) => {
+  box.replaceChildren(); if (fail(box, 'boardcomp')) return; if (!ok('boardcomp')) return;
+  const rows = dash.data('boardcomp').data.map(r => ({ o: r['出發地'], s: r['上車站'], p: +r['占比'] }));
+  const W = box.clientWidth, rowH = 26, groups = d3.groups(rows, r => r.o);
+  const H = groups.length * 26 + rows.length * rowH + 8;
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const lw = 92, x = d3.scaleLinear([0, 1], [lw, W - 48]);
+  let yy = 0;
+  groups.forEach(([o, rs]) => {
+    svg.append('text').attr('x', 0).attr('y', yy + 16).attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').style('font-weight', 'var(--cds-font-weight-medium)').text(`${o}出發的爆滿班`);
+    yy += 26;
+    rs.forEach(r => {
+      const hl = r.s === '高鐵臺中站';
+      svg.append('text').attr('x', lw - 6).attr('y', yy + 16).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(r.s);
+      svg.append('rect').attr('x', lw).attr('y', yy + 5).attr('height', 16).attr('rx', 2).attr('width', Math.max(1, x(r.p) - lw)).attr('fill', hl ? (dash.colors[2] || dash.colors[1]) : dash.colors[0]);
+      svg.append('text').attr('x', x(r.p) + 4).attr('y', yy + 17).attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').style('font-variant-numeric', 'tabular-nums').text(pct0(r.p));
+      yy += rowH;
+    });
+  });
+});
+
+const simRow = () => {
+  const v = (id) => { const e = document.getElementById(id); return e ? e.value : null; };
+  const d = dash.data('trigger'); if (d.status !== 'ok') return { st: 'wait' };
+  const r = d.data.find(a => a.origin === state.origin && a.grp === v('in-grp') && String(+a.wkend) === state.wk && String(+a.hr) === v('in-hr'));
+  const n = Math.max(0, +v('in-n') || 0);
+  if (!r) return { st: 'na', n };
+  const down = +r.down; return { st: 'ok', n, down, load: n + down, rate: +r.hi_rate, cnt: +r.n };
+};
+dash.draw('sim-load', (el) => { const s = simRow(); el.textContent = s.st === 'ok' ? `${num(s.load)} 人` : '—'; });
+dash.draw('sim-down', (el) => { const s = simRow(); el.textContent = s.st === 'ok' ? `${num(s.down)} 人` : '—'; });
+dash.draw('sim-rate', (el) => { const s = simRow(); el.textContent = s.st === 'ok' ? pct(s.rate) : '—'; });
+dash.draw('sim-n', (el) => { const s = simRow(); el.textContent = s.st === 'ok' ? `${num(s.cnt)} 班` : '—'; });
+dash.draw('sim-box', (el) => { const s = simRow(); const key = s.st === 'ok' ? (s.load >= HI ? 'go' : 'no') : (s.st === 'na' ? 'na' : ''); el.classList.toggle('go', key === 'go'); el.classList.toggle('no', key === 'no'); el.querySelectorAll('.gb-v').forEach(e => { e.hidden = e.dataset.v !== key; }); });
+dash.draw('gauge', (box) => {
+  box.replaceChildren(); const s = simRow(); if (s.st !== 'ok') return;
+  const W = box.clientWidth, H = 64, m = { l: 4, r: 4 };
+  const top = Math.max(CAP + 6, s.load + 4);
+  const x = d3.scaleLinear([0, top], [m.l, W - m.r]);
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('rect').attr('x', x(0)).attr('y', 14).attr('width', x(CAP) - x(0)).attr('height', 20).attr('rx', 3).attr('fill', 'var(--cds-chart-grid)');
+  svg.append('rect').attr('x', x(0)).attr('y', 14).attr('width', Math.max(0, x(s.n) - x(0))).attr('height', 20).attr('rx', 3).attr('fill', dash.colors[0]);
+  svg.append('rect').attr('x', x(s.n)).attr('y', 14).attr('width', Math.max(0, x(s.load) - x(s.n))).attr('height', 20).attr('fill', dash.colors[2] || dash.colors[1]);
+  svg.append('line').attr('x1', x(HI)).attr('x2', x(HI)).attr('y1', 8).attr('y2', 40).attr('stroke', 'var(--cds-chart-status-critical)').attr('stroke-width', 2).attr('stroke-dasharray', '4 3');
+  svg.append('line').attr('x1', x(CAP)).attr('x2', x(CAP)).attr('y1', 10).attr('y2', 38).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1);
+  const t = (xx, txt, anchor) => svg.append('text').attr('x', xx).attr('y', 56).attr('text-anchor', anchor).attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(txt);
+  t(x(0), '0', 'start'); t(x(HI), `門檻 ${HI}`, 'end'); t(x(CAP), `${CAP}`, 'start');
+});
+
+const redraw = () => { const o = document.getElementById('out-n'), i = document.getElementById('in-n'); if (o && i) o.value = `${i.value} 人`; ['sim-load', 'sim-down', 'sim-rate', 'sim-n', 'sim-box', 'gauge'].forEach(n => dash.draw(n)); };
+document.querySelectorAll('.gb-in').forEach(e => { e.addEventListener('change', redraw); e.addEventListener('input', redraw); });
+document.querySelectorAll('.seg').forEach(g => g.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); state[g.dataset.group] = b.dataset.val; redraw(); })));
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  document.querySelectorAll('.gb-sec').forEach(s => { s.hidden = s.id !== b.dataset.tab; });
+  dash.setLink(b.dataset.tab);
+}));
+const named = document.querySelector(`.tab[data-tab="${location.hash.slice(1)}"]`); if (named) named.click();
+</script>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GoBeyond 我要搭車(原型)</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6b6a66;--line:#e3e1db;--acc:#1f6f5c;--warn:#b7791f;--bad:#c0392b;--ok:#2f855a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.banner{font-size:13px;color:var(--mut);background:#fff8e6;border:1px solid #f0dfb0;border-radius:8px;padding:8px 12px;margin-bottom:12px}
+h1{font-size:22px;margin:4px 0 2px}h2{font-size:18px;margin:0 0 8px}.mut{color:var(--mut);font-size:14px}
+.tabs{display:flex;gap:6px;margin:12px 0}.tab{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);border-radius:10px;font:inherit;cursor:pointer}
+.tab[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;font:inherit;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.bus{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer}
+.bus[aria-checked=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.time{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;min-width:64px}
+.pill{font-size:13px;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.lv0{background:#e6f4ea;color:var(--ok)}.lv1{background:#fff3dc;color:var(--warn)}.lv2{background:#fde8e6;color:var(--bad)}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}
+.step{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.step button{width:44px;height:44px;border:0;background:#f0efea;font-size:20px;cursor:pointer}.step span{min-width:48px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:8px;cursor:pointer}label.chk input{width:22px;height:22px}
+.primary{width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font:inherit;font-size:17px;cursor:pointer}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.done{border-color:var(--acc)}.code{font-size:28px;font-weight:700;letter-spacing:2px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--mut);font-weight:500}td.n{text-align:right}
+.flag{color:#fff;background:var(--bad);border-radius:6px;padding:2px 8px;font-size:13px}
+.bar{height:10px;background:#eee;border-radius:5px;position:relative;min-width:120px}.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--bad)}
+input[type=number]{width:64px;padding:6px;border:1px solid var(--line);border-radius:6px;font:inherit}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.small{font-size:13px}.ghost{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer}
+.cards{display:none}.dc{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px}
+.dc.go{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad) inset}.dch{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dch .time{font-size:20px;min-width:auto}.dcr{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px;color:var(--mut);flex-wrap:wrap}
+.dcl{display:flex;align-items:center;gap:8px;margin-top:8px}.dcl .bar{flex:1}.big{font-size:18px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+@media (max-width:640px){.tblwrap{display:none}.cards{display:block}}
+</style></head><body><div class="wrap">
+<div class="banner">學生競賽原型(永續智慧創新黑客松 GoBeyond 團隊),非南投客運官方服務。登記資料只存在這個頁面,不會送出;擁擠預估來自 2024–2025 年電子票證統計,時刻為 TDX 公開時刻表(不含加班車),高鐵臺中站時間以臺中發車 +20 分估計。</div>
+<h1>我要搭車|6670 日月潭線</h1>
+<div class="mut">掃樞紐站 QR code 開啟,免下載。告訴調度你要搭哪一班,系統會提早準備加班車。</div>
+<div class="tabs" role="tablist">
+ <button class="tab" role="tab" data-v="rider" aria-selected="true">旅客端</button>
+ <button class="tab" role="tab" data-v="dispatch" aria-selected="false">調度端</button>
+</div>
+
+<section id="v-rider">
+ <div class="card">
+  <h2>1. 你在哪一站?</h2>
+  <div class="seg" id="stops"></div>
+  <div class="row small mut">示範時間:
+   <select id="day" class="ghost"></select>
+   <input id="clock" type="time" class="ghost" value="15:00" aria-label="示範時間">
+  </div>
+ </div>
+ <div class="card">
+  <h2>2. 選擇班次</h2>
+  <div class="mut small">擁擠預估=歷史上同支線、同平假日、同時段「客滿(≥42 人)」的比例</div>
+  <div id="buses"></div>
+ </div>
+ <div class="card">
+  <h2>3. 幾位、需要協助嗎?</h2>
+  <div class="row"><span>搭乘人數</span>
+   <div class="step"><button id="minus" aria-label="減少">−</button><span id="cnt">1</span><button id="plus" aria-label="增加">+</button></div></div>
+  <label class="chk"><input type="checkbox" id="wc"> 需要輪椅或行動協助(調度會優先安排無障礙車)</label>
+  <div class="row"><button class="primary" id="submit" disabled>送出登記</button></div>
+  <div class="mut small">不登記也能照常排隊搭車;登記只是讓調度提早知道。</div>
+ </div>
+ <div class="card done" id="ok" hidden>
+  <h2>已登記</h2>
+  <div class="code" id="code"></div>
+  <div id="okmsg"></div>
+  <div class="mut small" style="margin-top:6px">正式版會在加班車派出或預估客滿時,用 LINE 或簡訊通知你。</div>
+ </div>
+</section>
+
+<section id="v-dispatch" hidden>
+ <div class="card">
+  <h2>接下來 2 小時的班次</h2>
+  <div class="mut small">預估載客 = 現場候車人數 + 後續站歷史上車中位數;現場候車取「感測人數」與「登記人數」較大者(登記者也會被攝影機數到,不重複計算)。感測人數請手動輸入以模擬攝影機。達 42 人(49 人容量 × 85%)即提示派機動加班車。是否派車由調度員決定。</div>
+  <div class="row"><button class="ghost" id="demo">產生示範登記</button><button class="ghost" id="clear">清除登記</button></div>
+  <div class="cards" id="cards"></div><div class="tblwrap" style="overflow-x:auto"><table><thead><tr><th>站</th><th>發車</th><th>支線</th><th class="n">登記</th><th>輪椅</th><th class="n">感測候車</th><th class="n">後續站</th><th class="n">預估載客</th><th>載客</th><th>建議</th></tr></thead><tbody id="tb"></tbody></table></div>
+ </div>
+ <div class="grid2">
+  <div class="card"><h2>今日登記</h2><div id="sum" class="mut"></div></div>
+  <div class="card"><h2>為什麼登記不直接決定派車</h2><div class="mut small">會登記的旅客只是一部分,而且偏向年輕族群。登記用來①提早得知輪椅需求、②校正攝影機人數;派車依據仍是「感測人數 + 歷史上車」,避免樣本偏差。</div></div>
+ </div>
+</section>
+</div>
+<script>
+const DATA={"tt": [{"s": "6670A", "d": 0, "t": "07:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 0, "t": "08:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 0, "t": "09:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 0, "t": "15:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 1, "t": "09:10", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 1, "t": "15:10", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 1, "t": "16:10", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670A", "d": 1, "t": "17:10", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "07:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "07:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "08:00", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "10:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "12:35", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "13:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "14:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "15:20", "days": [0, 0, 0, 0, 1, 1, 1]}, {"s": "6670B", "d": 0, "t": "16:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "09:40", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "17:40", "days": [0, 0, 0, 0, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "10:00", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "10:10", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "10:40", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "11:00", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "12:40", "days": [0, 0, 0, 0, 1, 1, 1]}, {"s": "6670B", "d": 1, "t": "14:40", "days": [1, 1, 1, 1, 0, 0, 0]}, {"s": "6670B", "d": 1, "t": "15:30", "days": [1, 1, 1, 1, 0, 0, 0]}, {"s": "6670B", "d": 1, "t": "16:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "08:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "19:45", "days": [0, 0, 0, 0, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "10:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "11:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "12:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "13:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "14:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "16:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "17:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 0, "t": "18:45", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "07:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "19:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "08:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "10:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "11:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "12:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "13:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "14:00", "days": [0, 0, 0, 0, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "14:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670D", "d": 1, "t": "18:25", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 0, "t": "08:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 0, "t": "09:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 0, "t": "11:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 0, "t": "12:20", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 1, "t": "11:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 1, "t": "13:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 1, "t": "15:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670F", "d": 1, "t": "16:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "07:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "13:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "14:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "15:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "16:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 0, "t": "17:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "07:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "08:15", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "08:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "09:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "11:30", "days": [1, 1, 1, 1, 1, 1, 1]}, {"s": "6670H", "d": 1, "t": "18:30", "days": [1, 1, 1, 1, 1, 1, 1]}], "lk": {"臺中(含高鐵臺中站)|6670D|0|8": [0.0, 0.031, 731], "臺中(含高鐵臺中站)|6670D|0|9": [0.0, 0.005, 639], "臺中(含高鐵臺中站)|6670D|0|10": [0.0, 0.036, 445], "臺中(含高鐵臺中站)|6670D|0|11": [0.0, 0.007, 740], "臺中(含高鐵臺中站)|6670D|0|12": [0.0, 0.0, 690], "臺中(含高鐵臺中站)|6670D|0|13": [0.0, 0.0, 400], "臺中(含高鐵臺中站)|6670D|0|14": [0.0, 0.002, 430], "臺中(含高鐵臺中站)|6670D|0|15": [0.0, 0.006, 158], "臺中(含高鐵臺中站)|6670D|0|16": [0.0, 0.003, 625], "臺中(含高鐵臺中站)|6670D|0|17": [0.0, 0.003, 714], "臺中(含高鐵臺中站)|6670D|0|18": [0.0, 0.007, 952], "臺中(含高鐵臺中站)|6670D|0|19": [0.0, 0.003, 689], "臺中(含高鐵臺中站)|6670D|0|20": [0.0, 0.0, 345], "臺中(含高鐵臺中站)|6670D|0|21": [0.0, 0.003, 632], "臺中(含高鐵臺中站)|6670D|1|8": [0.0, 0.024, 551], "臺中(含高鐵臺中站)|6670D|1|9": [0.0, 0.007, 455], "臺中(含高鐵臺中站)|6670D|1|10": [0.0, 0.066, 335], "臺中(含高鐵臺中站)|6670D|1|11": [0.0, 0.021, 536], "臺中(含高鐵臺中站)|6670D|1|12": [0.0, 0.004, 558], "臺中(含高鐵臺中站)|6670D|1|13": [0.0, 0.006, 315], "臺中(含高鐵臺中站)|6670D|1|14": [0.0, 0.012, 343], "臺中(含高鐵臺中站)|6670D|1|15": [0.0, 0.08, 137], "臺中(含高鐵臺中站)|6670D|1|16": [0.0, 0.033, 670], "臺中(含高鐵臺中站)|6670D|1|17": [0.0, 0.023, 434], "臺中(含高鐵臺中站)|6670D|1|18": [0.0, 0.044, 633], "臺中(含高鐵臺中站)|6670D|1|19": [0.0, 0.044, 609], "臺中(含高鐵臺中站)|6670D|1|20": [0.0, 0.047, 574], "臺中(含高鐵臺中站)|6670D|1|21": [0.0, 0.008, 512], "臺中(含高鐵臺中站)|6670H|0|7": [0.0, 0.019, 413], "臺中(含高鐵臺中站)|6670H|0|8": [0.0, 0.031, 97], "臺中(含高鐵臺中站)|6670H|0|9": [0.0, 0.007, 152], "臺中(含高鐵臺中站)|6670H|0|10": [0.0, 0.003, 356], "臺中(含高鐵臺中站)|6670H|0|11": [0.0, 0.011, 87], "臺中(含高鐵臺中站)|6670H|0|12": [0.0, 0.0, 105], "臺中(含高鐵臺中站)|6670H|0|13": [0.0, 0.0, 396], "臺中(含高鐵臺中站)|6670H|0|14": [0.0, 0.005, 400], "臺中(含高鐵臺中站)|6670H|0|15": [0.0, 0.0, 367], "臺中(含高鐵臺中站)|6670H|0|16": [0.0, 0.002, 416], "臺中(含高鐵臺中站)|6670H|0|17": [0.0, 0.013, 532], "臺中(含高鐵臺中站)|6670H|0|18": [0.0, 0.007, 141], "臺中(含高鐵臺中站)|6670H|0|19": [0.0, 0.0, 130], "臺中(含高鐵臺中站)|6670H|0|20": [0.0, 0.0, 95], "臺中(含高鐵臺中站)|6670H|0|21": [0.0, 0.007, 138], "臺中(含高鐵臺中站)|6670H|1|7": [0.0, 0.02, 307], "臺中(含高鐵臺中站)|6670H|1|8": [0.0, 0.015, 67], "臺中(含高鐵臺中站)|6670H|1|9": [0.0, 0.008, 130], "臺中(含高鐵臺中站)|6670H|1|10": [0.0, 0.0, 291], "臺中(含高鐵臺中站)|6670H|1|11": [0.0, 0.0, 75], "臺中(含高鐵臺中站)|6670H|1|12": [0.0, 0.0, 47], "臺中(含高鐵臺中站)|6670H|1|13": [0.0, 0.003, 309], "臺中(含高鐵臺中站)|6670H|1|14": [0.0, 0.007, 285], "臺中(含高鐵臺中站)|6670H|1|15": [0.0, 0.011, 281], "臺中(含高鐵臺中站)|6670H|1|16": [0.0, 0.014, 361], "臺中(含高鐵臺中站)|6670H|1|17": [0.0, 0.012, 599], "臺中(含高鐵臺中站)|6670H|1|18": [0.0, 0.024, 290], "臺中(含高鐵臺中站)|6670H|1|19": [0.0, 0.0, 42], "臺中(含高鐵臺中站)|6670H|1|20": [0.0, 0.014, 71], "臺中(含高鐵臺中站)|6670H|1|21": [0.0, 0.0, 100], "臺中(含高鐵臺中站)|A/B/F|0|7": [0.0, 0.07, 1379], "臺中(含高鐵臺中站)|A/B/F|0|8": [0.0, 0.075, 868], "臺中(含高鐵臺中站)|A/B/F|0|9": [0.0, 0.095, 844], "臺中(含高鐵臺中站)|A/B/F|0|10": [0.0, 0.08, 424], "臺中(含高鐵臺中站)|A/B/F|0|11": [0.0, 0.009, 424], "臺中(含高鐵臺中站)|A/B/F|0|12": [0.0, 0.005, 584], "臺中(含高鐵臺中站)|A/B/F|0|13": [0.0, 0.0, 397], "臺中(含高鐵臺中站)|A/B/F|0|14": [0.0, 0.0, 378], "臺中(含高鐵臺中站)|A/B/F|0|15": [0.0, 0.011, 438], "臺中(含高鐵臺中站)|A/B/F|0|16": [0.0, 0.003, 385], "臺中(含高鐵臺中站)|A/B/F|1|7": [0.0, 0.071, 1085], "臺中(含高鐵臺中站)|A/B/F|1|8": [0.0, 0.085, 686], "臺中(含高鐵臺中站)|A/B/F|1|9": [0.0, 0.096, 645], "臺中(含高鐵臺中站)|A/B/F|1|10": [0.0, 0.069, 320], "臺中(含高鐵臺中站)|A/B/F|1|11": [0.0, 0.022, 324], "臺中(含高鐵臺中站)|A/B/F|1|12": [0.0, 0.011, 457], "臺中(含高鐵臺中站)|A/B/F|1|13": [0.0, 0.003, 304], "臺中(含高鐵臺中站)|A/B/F|1|14": [0.0, 0.0, 294], "臺中(含高鐵臺中站)|A/B/F|1|15": [0.0, 0.025, 605], "臺中(含高鐵臺中站)|A/B/F|1|16": [0.0, 0.007, 301], "日月潭|6670D|0|7": [22.0, 0.024, 414], "日月潭|6670D|0|8": [22.0, 0.002, 407], "日月潭|6670D|0|10": [13.0, 0.01, 413], "日月潭|6670D|0|11": [12.0, 0.007, 412], "日月潭|6670D|0|12": [14.0, 0.067, 415], "日月潭|6670D|0|13": [11.0, 0.19, 441], "日月潭|6670D|0|14": [10.0, 0.072, 418], "日月潭|6670D|0|16": [8.0, 0.036, 169], "日月潭|6670D|0|18": [7.0, 0.102, 413], "日月潭|6670D|0|19": [14.0, 0.013, 394], "日月潭|6670D|1|7": [25.0, 0.02, 307], "日月潭|6670D|1|8": [25.0, 0.016, 306], "日月潭|6670D|1|10": [19.0, 0.025, 314], "日月潭|6670D|1|11": [16.0, 0.013, 315], "日月潭|6670D|1|12": [16.0, 0.094, 318], "日月潭|6670D|1|13": [10.0, 0.16, 618], "日月潭|6670D|1|14": [12.0, 0.066, 331], "日月潭|6670D|1|18": [9.0, 0.099, 304], "日月潭|6670D|1|19": [13.0, 0.016, 315], "日月潭|A/B/F|0|9": [5.0, 0.003, 1114], "日月潭|A/B/F|0|10": [1.0, 0.0, 995], "日月潭|A/B/F|0|11": [2.0, 0.0, 177], "日月潭|A/B/F|0|12": [0.0, 0.0, 31], "日月潭|A/B/F|0|13": [0.0, 0.016, 63], "日月潭|A/B/F|0|14": [2.0, 0.019, 428], "日月潭|A/B/F|0|15": [4.0, 0.054, 957], "日月潭|A/B/F|0|16": [9.0, 0.087, 553], "日月潭|A/B/F|0|17": [10.0, 0.211, 446], "日月潭|A/B/F|1|9": [10.0, 0.016, 861], "日月潭|A/B/F|1|10": [2.0, 0.001, 755], "日月潭|A/B/F|1|11": [3.0, 0.0, 113], "日月潭|A/B/F|1|12": [3.0, 0.023, 305], "日月潭|A/B/F|1|13": [0.0, 0.0, 58], "日月潭|A/B/F|1|14": [0.0, 0.15, 40], "日月潭|A/B/F|1|15": [3.0, 0.138, 622], "日月潭|A/B/F|1|16": [9.0, 0.241, 427], "日月潭|A/B/F|1|17": [4.0, 0.195, 651]}};
+const STOPS=[{id:'tc',name:'臺中轉運中心',org:'臺中(含高鐵臺中站)',dir:0,off:0},{id:'hsr',name:'高鐵臺中站',org:'臺中(含高鐵臺中站)',dir:0,off:20},{id:'sml',name:'日月潭',org:'日月潭',dir:1,off:0}];
+const DAYS=['週一','週二','週三','週四','週五','週六','週日'];
+const GRP=s=>['6670A','6670B','6670F'].includes(s)?'A/B/F':s;
+const NAME={'6670A':'A 經埔里/九族','6670B':'B 直達','6670D':'D 經埔里','6670F':'F 直達向山','6670H':'H 臺中-埔里'};
+const st={stop:'hsr',day:4,bus:null,cnt:1,regs:[],sensed:{}};
+const toMin=t=>{const[a,b]=t.split(':').map(Number);return a*60+b}, fmt=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+function deps(stop,day){return DATA.tt.filter(r=>r.d===stop.dir&&r.days[day]).map(r=>{const m=toMin(r.t)+stop.off;const wk=day>=4?1:0;const k=`${stop.org}|${GRP(r.s)}|${wk}|${Math.floor(m/60)}`;const lk=DATA.lk[k];return{key:`${stop.id}-${m}-${r.s}`,stop,m,s:r.s,lk}}).sort((a,b)=>a.m-b.m)}
+const lvl=p=>p==null?null:p>=.10?2:p>=.03?1:0, LV=['通常有座位','可能要站','很可能客滿'];
+const now=()=>toMin(document.getElementById('clock').value||'15:00');
+const regOf=k=>st.regs.filter(r=>r.key===k), regN=k=>regOf(k).reduce((a,r)=>a+r.n,0);
+function el(t,a={},...c){const e=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}c.flat().forEach(x=>e.append(x));return e}
+function drawRider(){
+ const s=document.getElementById('stops');s.replaceChildren(...STOPS.map(x=>el('button',{'aria-pressed':String(x.id===st.stop),onclick:()=>{st.stop=x.id;st.bus=null;drawRider()}},x.name)));
+ const stop=STOPS.find(x=>x.id===st.stop), n=now(), list=deps(stop,st.day).filter(d=>d.m>=n).slice(0,4);
+ const b=document.getElementById('buses');
+ if(!list.length){b.replaceChildren(el('div',{class:'mut'},'今日已無班次(時刻表不含加班車)'))}
+ else b.replaceChildren(...list.map(d=>{const L=lvl(d.lk?.[1]);return el('div',{class:'bus',role:'radio','aria-checked':String(st.bus===d.key),tabindex:'0',onclick:()=>{st.bus=d.key;drawRider()}},
+   el('div',{class:'time'},fmt(d.m)),el('div',{style:'flex:1'},el('div',{},NAME[d.s]||d.s),el('div',{class:'mut small'},`${d.m-n} 分鐘後 · 已登記 ${regN(d.key)} 人`)),
+   L==null?el('span',{class:'pill',style:'background:#eee;color:#666'},'無資料'):el('span',{class:'pill lv'+L},LV[L]))}));
+ document.getElementById('cnt').textContent=st.cnt;document.getElementById('submit').disabled=!st.bus;
+}
+function drawDispatch(){
+ const n=now(),tb=document.getElementById('tb'),cards=document.getElementById('cards');tb.replaceChildren();cards.replaceChildren();
+ STOPS.forEach(stop=>deps(stop,st.day).filter(d=>d.m>=n&&d.m<=n+120).forEach(d=>{
+  const r=regN(d.key),wc=regOf(d.key).filter(x=>x.wc).length,sen=st.sensed[d.key]??0,down=d.lk?d.lk[0]:null;
+  const load=Math.max(r,sen)+(down||0),go=down!=null&&load>=42;
+  const inp=el('input',{type:'number',min:'0',max:'80',value:String(sen),'aria-label':'感測候車人數'});inp.addEventListener('change',()=>{st.sensed[d.key]=Math.max(0,+inp.value||0);drawDispatch()});
+  const bar=el('div',{class:'bar'},el('i',{style:`width:${Math.min(100,load/49*100)}%;background:${go?'var(--bad)':'var(--acc)'}`}),el('b',{style:`left:${42/49*100}%`}));
+  const mk=()=>{const i=el('input',{type:'number',min:'0',max:'80',value:String(sen),'aria-label':'感測候車人數',inputmode:'numeric'});i.addEventListener('change',()=>{st.sensed[d.key]=Math.max(0,+i.value||0);drawDispatch()});return i};
+  const bar2=el('div',{class:'bar'},el('i',{style:`width:${Math.min(100,load/49*100)}%;background:${go?'var(--bad)':'var(--acc)'}`}),el('b',{style:`left:${42/49*100}%`}));
+  cards.append(el('div',{class:'dc'+(go?' go':'')},
+   el('div',{class:'dch'},el('span',{class:'time'},fmt(d.m)),el('span',{},`${stop.name} · ${NAME[d.s]||d.s}`),go?el('span',{class:'flag'},'派機動加班'):el('span',{class:'mut small'},down==null?'資料不足':'正常')),
+   el('div',{class:'dcr'},el('span',{},`登記 ${r} 人`),wc?el('span',{},`♿ ${wc}`):'',el('span',{},`後續站 ${down==null?'—':Math.round(down)}`),el('span',{},'感測候車'),mk()),
+   el('div',{class:'dcl'},el('span',{class:'big'},down==null?'—':`${Math.round(load)} 人`),bar2,el('span',{class:'small mut'},'門檻 42'))));
+  tb.append(el('tr',{},el('td',{},stop.name),el('td',{},fmt(d.m)),el('td',{},d.s.replace('6670','')),el('td',{class:'n'},String(r)),el('td',{},wc?`♿ ${wc}`:''),el('td',{class:'n'},inp),el('td',{class:'n'},down==null?'—':String(Math.round(down))),el('td',{class:'n'},down==null?'—':String(Math.round(load))),el('td',{},bar),
+   el('td',{},go?el('span',{class:'flag'},'派機動加班'):(down==null?el('span',{class:'mut small'},'資料不足'):el('span',{class:'mut small'},'正常'))))) }));
+ if(!tb.children.length){tb.append(el('tr',{},el('td',{colspan:'10',class:'mut'},'2 小時內沒有班次')));cards.append(el('div',{class:'mut'},'2 小時內沒有班次'))}
+ const tot=st.regs.reduce((a,r)=>a+r.n,0),wc=st.regs.filter(r=>r.wc).length;
+ document.getElementById('sum').textContent=`共 ${st.regs.length} 筆、${tot} 人;輪椅協助 ${wc} 筆`;
+}
+document.getElementById('minus').onclick=()=>{st.cnt=Math.max(1,st.cnt-1);drawRider()};
+document.getElementById('plus').onclick=()=>{st.cnt=Math.min(6,st.cnt+1);drawRider()};
+document.getElementById('submit').onclick=()=>{const wc=document.getElementById('wc').checked;st.regs.push({key:st.bus,n:st.cnt,wc});
+ const d=st.bus.split('-');const code='GB'+String(st.regs.length).padStart(3,'0');document.getElementById('code').textContent=code;
+ const stop=STOPS.find(x=>x.id===d[0]);document.getElementById('okmsg').textContent=`${stop.name} ${fmt(+d[1])} 發車,${st.cnt} 位${wc?',需要輪椅協助(已通知調度)':''}。`;
+ document.getElementById('ok').hidden=false;document.getElementById('wc').checked=false;st.cnt=1;drawRider();document.getElementById('ok').scrollIntoView({behavior:'smooth'})};
+document.getElementById('demo').onclick=()=>{st.regs=[];st.sensed={};const n=now();STOPS.forEach(stop=>deps(stop,st.day).filter(d=>d.m>=n&&d.m<=n+120).forEach(d=>{const sen=Math.round(5+(d.lk?.[1]||0.02)*110+Math.random()*10);st.sensed[d.key]=sen;let left=Math.round(sen*0.2);while(left>0){const n=Math.min(left,1+Math.floor(Math.random()*3));st.regs.push({key:d.key,n,wc:Math.random()<.06});left-=n}}));drawDispatch()};
+document.getElementById('clear').onclick=()=>{st.regs=[];st.sensed={};drawDispatch()};
+const day=document.getElementById('day');DAYS.forEach((d,i)=>day.append(el('option',{value:String(i)},d)));day.value='4';
+day.onchange=()=>{st.day=+day.value;st.bus=null;render()};document.getElementById('clock').oninput=()=>{st.bus=null;render()};
+function show(v){document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===v)));document.getElementById('v-rider').hidden=v!=='rider';document.getElementById('v-dispatch').hidden=v!=='dispatch';render()}
+function render(){if(!document.getElementById('v-rider').hidden)drawRider();else drawDispatch()}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.v;show(t.dataset.v)});
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)==='dispatch'?'dispatch':'rider'));
+show(location.hash.slice(1)==='dispatch'?'dispatch':'rider');
+</script></body></html>
